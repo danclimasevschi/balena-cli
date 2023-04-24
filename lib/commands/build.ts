@@ -30,6 +30,7 @@ import type { ComposeCliFlags, ComposeOpts } from '../utils/compose-types';
 import { buildProject, composeCliFlags } from '../utils/compose_ts';
 import type { BuildOpts, DockerCliFlags } from '../utils/docker';
 import { dockerCliFlags } from '../utils/docker';
+import { tagImagesWithArch } from '../utils/multi-arch';
 
 interface FlagsDef extends ComposeCliFlags, DockerCliFlags {
 	arch?: string;
@@ -246,7 +247,7 @@ ${dockerignoreHelp}
 			);
 		}
 
-		await buildProject({
+		const builtImages = await buildProject({
 			docker,
 			logger,
 			projectPath: project.path,
@@ -261,5 +262,7 @@ ${dockerignoreHelp}
 			dockerfilePath: composeOpts.dockerfilePath,
 			multiDockerignore: composeOpts.multiDockerignore,
 		});
+
+		await tagImagesWithArch(docker, builtImages, opts.arch);
 	}
 }
